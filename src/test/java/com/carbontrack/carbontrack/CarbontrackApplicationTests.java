@@ -9,5 +9,4 @@ class CarbontrackApplicationTests {
 	@Test
 	void contextLoads() {
 	}
-
 }
