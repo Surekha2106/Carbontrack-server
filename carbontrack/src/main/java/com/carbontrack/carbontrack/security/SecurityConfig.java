@@ -40,14 +40,9 @@ public class SecurityConfig {
                 .requestMatchers("/api/auth/**", "/error").permitAll()
                 .anyRequest().authenticated()
             )
-            .oauth2Login(oauth2 -> oauth2
-                .successHandler(oAuth2AuthenticationSuccessHandler)
-            )
             .exceptionHandling(exceptions -> exceptions
-                .defaultAuthenticationEntryPointFor(
-                    (request, response, authException) -> response.sendError(jakarta.servlet.http.HttpServletResponse.SC_UNAUTHORIZED, authException.getMessage()),
-                    request -> request.getServletPath().startsWith("/api/")
-                )
+                .authenticationEntryPoint((request, response, authException) -> 
+                    response.sendError(jakarta.servlet.http.HttpServletResponse.SC_UNAUTHORIZED, authException.getMessage()))
             )
             .sessionManagement(session -> session
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
