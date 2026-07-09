@@ -81,7 +81,7 @@ const Dashboard: React.FC = () => {
       if (data.foodAmount && Number(data.foodAmount) > 0) {
         promises.push(activityService.logActivity({
           category: 'Food',
-          activityType: 'food',
+          activityType: data.foodType || 'food',
           quantity: Number(data.foodAmount),
           unit: 'meal',
           logDate: date

@@ -12,6 +12,7 @@ interface LogActivityModalProps {
 interface ActivityFormValues {
   transportAmount?: number;
   energyAmount?: number;
+  foodType?: string;
   foodAmount?: number;
   shoppingAmount?: number;
   date: string;
@@ -101,13 +102,26 @@ export const LogActivityModal: React.FC<LogActivityModalProps> = ({ isOpen, onCl
                 </div>
                 <div className="space-y-1">
                   <label className="text-xs text-text-secondary pl-1">🥗 Food & Diet (meals)</label>
-                  <input
-                    {...register('foodAmount', { min: 0 })}
-                    type="number"
-                    step="0.1"
-                    placeholder="e.g. 3"
-                    className="glass-input"
-                  />
+                  <div className="flex gap-2">
+                    <select {...register('foodType')} className="glass-input w-1/2 text-xs" style={{ colorScheme: 'dark' }}>
+                      <option value="food">General</option>
+                      <option value="chicken_biryani">Chicken Biryani</option>
+                      <option value="mutton_biryani">Mutton Biryani</option>
+                      <option value="tiffin">Tiffin</option>
+                      <option value="veg_meals">Veg Meals</option>
+                      <option value="dosa">Dosa</option>
+                      <option value="pizza">Pizza</option>
+                      <option value="burger">Burger</option>
+                      <option value="tea_coffee">Tea / Coffee</option>
+                    </select>
+                    <input
+                      {...register('foodAmount', { min: 0 })}
+                      type="number"
+                      step="0.1"
+                      placeholder="e.g. 3"
+                      className="glass-input w-1/2"
+                    />
+                  </div>
                 </div>
                 <div className="space-y-1">
                   <label className="text-xs text-text-secondary pl-1">🛍️ Shopping (items)</label>

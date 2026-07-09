@@ -101,7 +101,7 @@ export const DashboardLayout: React.FC = () => {
   );
 
   return (
-    <div className="flex h-screen bg-background overflow-hidden text-text-primary">
+    <div className="flex h-screen bg-transparent overflow-hidden text-text-primary">
       {/* Mobile Sidebar Overlay */}
       {isMobileOpen && (
         <div 
