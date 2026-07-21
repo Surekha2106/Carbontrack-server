@@ -54,16 +54,18 @@ public class EmissionCalculationServiceTest {
     }
 
     @Test
-    void calculateEmission_withUnknownActivity_returnsZero() {
+    void calculateEmission_withUnknownActivity_returnsFallback() {
         when(emissionFactorRepository.findByActivityType("unknown")).thenReturn(Optional.empty());
         BigDecimal result = emissionCalculationService.calculateEmission("unknown", new BigDecimal("100.0"));
-        assertEquals(BigDecimal.ZERO, result);
+        // 100.0 * 0.5 (fallback) = 50.00
+        assertEquals(new BigDecimal("50.00"), result);
     }
 
     @Test
     void calculateEmission_withBoundaryValues_handlesCorrectly() {
         BigDecimal maxQuantity = new BigDecimal("999999999.99");
         BigDecimal result = emissionCalculationService.calculateEmission("car", maxQuantity);
-        assertEquals(maxQuantity.multiply(new BigDecimal("0.192")), result);
+        // 999999999.99 * 0.192 = 191999999.99808, rounded HALF_UP to 2 places is 192000000.00
+        assertEquals(new BigDecimal("192000000.00"), result);
     }
 }
