@@ -4,11 +4,13 @@ import { User, Mail, Shield, Award, Settings, LogOut, Edit3, Activity } from 'lu
 import { userService } from '../../services/userService';
 import { useAuth } from '../../context/AuthContext';
 import { apiClient } from '../../services/apiClient';
+import { EditProfileModal } from '../../components/forms/EditProfileModal';
 
 export const ProfilePage: React.FC = () => {
   const { user: authUser, logout } = useAuth();
   const [profile, setProfile] = useState<any>(null);
   const [totalEmissions, setTotalEmissions] = useState(0);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
   useEffect(() => {
     const fetchProfileData = async () => {
@@ -26,6 +28,17 @@ export const ProfilePage: React.FC = () => {
     };
     fetchProfileData();
   }, [authUser]);
+
+  const handleSaveProfile = async (newName: string) => {
+    try {
+      const updatedUser = await userService.updateProfile({ ...profile, name: newName });
+      setProfile(updatedUser);
+      // Optional: you could update AuthContext user here if you export a function for it
+    } catch (error) {
+      console.error('Failed to update profile:', error);
+      throw error;
+    }
+  };
 
   if (!profile) return null;
   
@@ -53,7 +66,10 @@ export const ProfilePage: React.FC = () => {
         <div className="relative pt-16 px-6 pb-6 flex flex-col md:flex-row items-center md:items-end gap-6 text-center md:text-left">
           <div className="relative">
             <img src={`https://ui-avatars.com/api/?name=${encodeURIComponent(profile.name || 'User')}&background=22c55e&color=fff`} alt="Avatar" className="w-28 h-28 rounded-full border-4 border-[#0a0a0a] shadow-2xl" />
-            <button className="absolute bottom-0 right-0 p-2 bg-surface border border-border rounded-full hover:text-accent transition-colors">
+            <button 
+              onClick={() => setIsEditModalOpen(true)}
+              className="absolute bottom-0 right-0 p-2 bg-surface border border-border rounded-full hover:text-accent transition-colors"
+            >
               <Edit3 size={14} />
             </button>
           </div>
@@ -64,7 +80,10 @@ export const ProfilePage: React.FC = () => {
           </div>
           
           <div className="flex gap-3">
-            <button className="btn-secondary px-4 py-2 text-sm flex items-center gap-2">
+            <button 
+              onClick={() => setIsEditModalOpen(true)}
+              className="btn-secondary px-4 py-2 text-sm flex items-center gap-2"
+            >
               <Settings size={16} /> Edit Profile
             </button>
           </div>
@@ -137,6 +156,13 @@ export const ProfilePage: React.FC = () => {
           </div>
         </motion.div>
       </div>
+
+      <EditProfileModal
+        isOpen={isEditModalOpen}
+        onClose={() => setIsEditModalOpen(false)}
+        currentName={profile.name || ''}
+        onSave={handleSaveProfile}
+      />
     </div>
   );
 };

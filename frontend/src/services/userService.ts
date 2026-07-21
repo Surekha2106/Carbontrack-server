@@ -7,10 +7,13 @@ export const userService = {
   },
   
   updateProfile: async (data: any) => {
-    // For now we will mock this or point to the API if available
-    // const response = await apiClient.put('/users/me', data);
-    // return response.data;
-    return new Promise(resolve => setTimeout(() => resolve({ success: true, ...data }), 800));
+    const response = await apiClient.put('/users/me', data);
+    return response.data;
+  },
+  
+  changePassword: async (data: any) => {
+    const response = await apiClient.put('/users/me/password', data);
+    return response.data;
   },
   
   getLeaderboard: async () => {

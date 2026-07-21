@@ -319,7 +319,7 @@ export const DashboardLayout: React.FC = () => {
         }
       `}</style>
 
-      <div className="flex h-screen overflow-hidden bg-[#F7F5EF] dark:bg-[#0f1712] text-[#141A17] dark:text-slate-100">
+      <div className="flex h-screen overflow-hidden bg-transparent text-[#141A17] dark:text-slate-100">
         <AnimatePresence>
           {isMobileOpen && (
             <motion.div
@@ -341,7 +341,7 @@ export const DashboardLayout: React.FC = () => {
         </aside>
 
         <main
-          className="flex-1 flex flex-col h-screen overflow-hidden w-full relative bg-gradient-to-br from-[#F7F5EF] to-[#ffffff] dark:from-[#0f1712] dark:to-[#000000]"
+          className="flex-1 flex flex-col h-screen overflow-hidden w-full relative bg-transparent"
         >
           {/* Top Navigation Bar */}
           <header

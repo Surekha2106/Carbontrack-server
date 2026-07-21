@@ -69,6 +69,14 @@ public class User {
     @Builder.Default
     private Integer highestStreak = 0;
 
+    @Column(name = "push_notifications")
+    @Builder.Default
+    private Boolean pushNotifications = true;
+
+    @Column(name = "email_alerts")
+    @Builder.Default
+    private Boolean emailAlerts = true;
+
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ActivityLog> activityLogs;
 

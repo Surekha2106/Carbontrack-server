@@ -1,7 +1,7 @@
 import React, { useRef } from 'react';
 import { toPng } from 'html-to-image';
 import { Download } from 'lucide-react';
-import tropicalBg from '../assets/tropical_leaves_bg.png';
+import tropicalBg from '../assets/small_plants_flowers_bg.png';
 
 interface ECertificateProps {
   userName: string;

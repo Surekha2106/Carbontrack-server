@@ -18,7 +18,7 @@ public class RecommendationController {
     private final RecommendationService recommendationService;
 
     @GetMapping
-    public ResponseEntity<List<String>> getRecommendations(Authentication authentication) {
+    public ResponseEntity<List<java.util.Map<String, String>>> getRecommendations(Authentication authentication) {
         return ResponseEntity.ok(recommendationService.getPersonalisedRecommendations(authentication.getName()));
     }
 

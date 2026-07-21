@@ -21,7 +21,41 @@ public class GoalService {
     public List<Goal> getUserGoals(String email) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
-        return goalRepository.findByUserId(user.getId());
+        List<Goal> goals = goalRepository.findByUserId(user.getId());
+        
+        java.time.LocalDate now = java.time.LocalDate.now();
+        for (Goal goal : goals) {
+            java.time.LocalDate startDate = goal.getStartDate();
+            java.time.LocalDate endDate = goal.getEndDate();
+            if (startDate == null || endDate == null) continue;
+
+            long daysPassed = java.time.temporal.ChronoUnit.DAYS.between(startDate, now);
+            long totalDays = java.time.temporal.ChronoUnit.DAYS.between(startDate, endDate);
+            
+            if (totalDays <= 0) totalDays = 1;
+            if (daysPassed < 0) daysPassed = 0;
+            if (daysPassed > totalDays) daysPassed = totalDays;
+            
+            double currentEmissions = goal.getCurrentValue() != null ? goal.getCurrentValue().doubleValue() : 0.0;
+            double targetEmissions = goal.getTargetValue() != null ? goal.getTargetValue().doubleValue() : 0.0;
+            
+            double progress = targetEmissions > 0 ? (currentEmissions / targetEmissions) * 100 : 0.0;
+            goal.setProgressPercentage(Math.min(100.0, Math.max(0.0, progress)));
+            
+            // Expected progress calculation (linear)
+            double expectedProgressPct = ((double) daysPassed / totalDays) * 100;
+            
+            if (goal.getProgressPercentage() <= expectedProgressPct) {
+                goal.setTrackingStatus("On Track");
+                goal.setAlertMessage("Excellent! You are on track with your goal.");
+            } else {
+                goal.setTrackingStatus("Behind Schedule");
+                double overage = currentEmissions - (targetEmissions * (expectedProgressPct / 100.0));
+                // Suggest reducing the overage over the next 7 days
+                goal.setAlertMessage(String.format("Warning! You need to reduce %.1f %s this week to get back on track.", overage, goal.getUnit()));
+            }
+        }
+        return goals;
     }
 
     public Goal createGoal(String email, Goal goalRequest) {
@@ -204,5 +238,49 @@ public class GoalService {
                 goalRepository.save(goal);
             }
         }
+    }
+
+    public Goal updateGoal(Long goalId, String email, Goal updatedGoal) {
+        Goal existingGoal = goalRepository.findById(goalId)
+                .orElseThrow(() -> new RuntimeException("Goal not found"));
+
+        if (!existingGoal.getUser().getEmail().equals(email)) {
+            throw new RuntimeException("Unauthorized");
+        }
+
+        if (updatedGoal.getGoalName() != null) {
+            existingGoal.setGoalName(updatedGoal.getGoalName());
+        }
+        if (updatedGoal.getTargetValue() != null) {
+            existingGoal.setTargetValue(updatedGoal.getTargetValue());
+        }
+        if (updatedGoal.getCurrentValue() != null) {
+            existingGoal.setCurrentValue(updatedGoal.getCurrentValue());
+        }
+        if (updatedGoal.getUnit() != null) {
+            existingGoal.setUnit(updatedGoal.getUnit());
+        }
+        if (updatedGoal.getStartDate() != null) {
+            existingGoal.setStartDate(updatedGoal.getStartDate());
+        }
+        if (updatedGoal.getEndDate() != null) {
+            existingGoal.setEndDate(updatedGoal.getEndDate());
+        }
+        if (updatedGoal.getStatus() != null) {
+            existingGoal.setStatus(updatedGoal.getStatus());
+        }
+
+        return goalRepository.save(existingGoal);
+    }
+
+    public void deleteGoal(Long goalId, String email) {
+        Goal existingGoal = goalRepository.findById(goalId)
+                .orElseThrow(() -> new RuntimeException("Goal not found"));
+
+        if (!existingGoal.getUser().getEmail().equals(email)) {
+            throw new RuntimeException("Unauthorized");
+        }
+
+        goalRepository.delete(existingGoal);
     }
 }

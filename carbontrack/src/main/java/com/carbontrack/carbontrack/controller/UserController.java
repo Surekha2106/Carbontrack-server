@@ -21,6 +21,21 @@ public class UserController {
         return ResponseEntity.ok(userService.getUserProfile(authentication.getName()));
     }
 
+    @org.springframework.web.bind.annotation.PutMapping("/me")
+    public ResponseEntity<UserResponse> updateCurrentUser(
+            Authentication authentication,
+            @org.springframework.web.bind.annotation.RequestBody UserResponse updateRequest) {
+        return ResponseEntity.ok(userService.updateUserProfile(authentication.getName(), updateRequest));
+    }
+
+    @org.springframework.web.bind.annotation.PutMapping("/me/password")
+    public ResponseEntity<Void> changePassword(
+            Authentication authentication,
+            @org.springframework.web.bind.annotation.RequestBody com.carbontrack.carbontrack.dto.ChangePasswordRequest request) {
+        userService.changePassword(authentication.getName(), request);
+        return ResponseEntity.ok().build();
+    }
+
     @GetMapping("/leaderboard")
     public ResponseEntity<java.util.List<com.carbontrack.carbontrack.dto.LeaderboardDto>> getLeaderboard(Authentication authentication) {
         return ResponseEntity.ok(userService.getLeaderboard(authentication.getName()));

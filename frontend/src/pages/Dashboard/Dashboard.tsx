@@ -121,7 +121,10 @@ const Dashboard: React.FC = () => {
       }
 
       if (promises.length > 0) {
-        const savedActivities = await Promise.all(promises);
+        const savedActivities = [];
+        for (const p of promises) {
+          savedActivities.push(await p);
+        }
         setActivities([...savedActivities.reverse(), ...activities]);
         activityService.getAnalyticsSummary().then(res => setAnalytics(res)).catch(() => {});
       }
@@ -353,12 +356,15 @@ const Dashboard: React.FC = () => {
           </div>
           <div className="space-y-3">
             {(Array.isArray(recommendations) ? recommendations : []).length > 0 ? (
-              (Array.isArray(recommendations) ? recommendations : []).map((rec, i) => (
-                <div key={i} className="p-4 rounded-xl bg-accent/5 border border-accent/20 flex gap-3 items-start">
-                  <div className="w-7 h-7 rounded-lg bg-accent/10 text-accent flex items-center justify-center flex-shrink-0 mt-0.5">
-                    <Zap size={15} />
+              (Array.isArray(recommendations) ? recommendations : []).map((rec: any, i) => (
+                <div key={i} className="p-4 rounded-xl bg-accent/5 border border-accent/20 flex flex-col gap-2">
+                  <div className="flex gap-3 items-center">
+                    <div className="w-7 h-7 rounded-lg bg-accent/10 text-accent flex items-center justify-center flex-shrink-0">
+                      {getActivityIcon(rec.activity || '')}
+                    </div>
+                    <span className="font-semibold text-sm text-text-primary capitalize">{rec.activity}</span>
                   </div>
-                  <p className="text-sm text-text-primary leading-relaxed">{rec}</p>
+                  <p className="text-sm text-text-secondary leading-relaxed ml-10">{rec.tip}</p>
                 </div>
               ))
             ) : (

@@ -17,7 +17,7 @@ public class RecommendationService {
     private final ActivityRepository activityRepository;
     private final UserRepository userRepository;
 
-    public List<String> getPersonalisedRecommendations(String email) {
+    public List<java.util.Map<String, String>> getPersonalisedRecommendations(String email) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
@@ -26,7 +26,7 @@ public class RecommendationService {
         
         List<Object[]> topActivities = activityRepository.getTopEmissionActivitiesSince(user.getId(), thirtyDaysAgo);
         
-        List<String> recommendations = new ArrayList<>();
+        List<java.util.Map<String, String>> recommendations = new ArrayList<>();
         
         // Take top 3 activities and map them to tips
         int count = 0;
@@ -37,13 +37,19 @@ public class RecommendationService {
             Double totalEmissions = ((Number) row[1]).doubleValue();
             
             if (totalEmissions > 0) {
-                recommendations.add(mapActivityToTip(activityType));
+                java.util.Map<String, String> rec = new java.util.HashMap<>();
+                rec.put("activity", activityType);
+                rec.put("tip", mapActivityToTip(activityType));
+                recommendations.add(rec);
                 count++;
             }
         }
         
         if (recommendations.isEmpty()) {
-            recommendations.add("Great job! Keep logging your activities to get personalised tips.");
+            java.util.Map<String, String> defaultRec = new java.util.HashMap<>();
+            defaultRec.put("activity", "General");
+            defaultRec.put("tip", "Great job! Keep logging your activities to get personalised tips.");
+            recommendations.add(defaultRec);
         }
         
         return recommendations;

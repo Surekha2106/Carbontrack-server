@@ -82,6 +82,10 @@ public class BadgeService {
                 .user(user)
                 .badge(badge)
                 .build();
-        userBadgeRepository.save(userBadge);
+        try {
+            userBadgeRepository.save(userBadge);
+        } catch (org.springframework.dao.DataIntegrityViolationException e) {
+            // Ignore duplicate key violation if badge was awarded concurrently
+        }
     }
 }

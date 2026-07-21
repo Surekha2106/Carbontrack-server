@@ -13,12 +13,29 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.security.crypto.password.PasswordEncoder;
+import com.carbontrack.carbontrack.dto.ChangePasswordRequest;
+
 @Service
 @RequiredArgsConstructor
 public class UserService {
 
     private final UserRepository userRepository;
     private final ActivityRepository activityRepository;
+    private final PasswordEncoder passwordEncoder;
+
+    @Transactional
+    public void changePassword(String email, ChangePasswordRequest request) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
+            throw new RuntimeException("Incorrect current password");
+        }
+
+        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        userRepository.save(user);
+    }
 
     @Transactional
     public UserResponse getUserProfile(String email) {
@@ -61,6 +78,20 @@ public class UserService {
 
         return builder.build();
     }
+
+    @Transactional
+    public UserResponse updateUserProfile(String email, UserResponse updateRequest) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        
+        if (updateRequest.getName() != null && !updateRequest.getName().trim().isEmpty()) {
+            user.setName(updateRequest.getName());
+        }
+        
+        userRepository.save(user);
+        return getUserProfile(email);
+    }
+
 
     public List<LeaderboardDto> getLeaderboard(String currentUserEmail) {
         User user = userRepository.findByEmail(currentUserEmail).orElse(null);

@@ -36,4 +36,22 @@ public class GoalController {
     ) {
         return ResponseEntity.ok(goalService.getGoalProgress(id, authentication.getName()));
     }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Goal> updateGoal(
+            @PathVariable Long id,
+            @RequestBody Goal goalRequest,
+            Authentication authentication
+    ) {
+        return ResponseEntity.ok(goalService.updateGoal(id, authentication.getName(), goalRequest));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteGoal(
+            @PathVariable Long id,
+            Authentication authentication
+    ) {
+        goalService.deleteGoal(id, authentication.getName());
+        return ResponseEntity.noContent().build();
+    }
 }

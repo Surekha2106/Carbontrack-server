@@ -73,9 +73,39 @@ export const BadgesPage: React.FC = () => {
       color: 'from-cyan-400 to-blue-500',
       cornerBadgeSize: 'w-12 h-12'
     },
+    { 
+      id: 104, 
+      name: 'Milestone 4', 
+      description: 'Reached 100kg Carbon Goal',
+      target: 100,
+      unlocked: effectiveTotal >= 100, 
+      icon: 'flag', 
+      color: 'from-emerald-400 to-green-600',
+      cornerBadgeSize: 'w-12 h-12'
+    },
+    { 
+      id: 105, 
+      name: 'Milestone 5', 
+      description: 'Reached 250kg Carbon Goal',
+      target: 250,
+      unlocked: effectiveTotal >= 250, 
+      icon: 'flag', 
+      color: 'from-violet-400 to-purple-600',
+      cornerBadgeSize: 'w-12 h-12'
+    },
+    { 
+      id: 106, 
+      name: 'Milestone 6', 
+      description: 'Reached 500kg Carbon Goal',
+      target: 500,
+      unlocked: effectiveTotal >= 500, 
+      icon: 'flag', 
+      color: 'from-fuchsia-400 to-pink-600',
+      cornerBadgeSize: 'w-12 h-12'
+    },
   ];
 
-  const hasCompletedMilestone3 = effectiveTotal >= 50;
+  const highestMilestone = displayBadges.slice().reverse().find(b => b.unlocked);
 
   const handleStartMilestones = () => {
     setMilestonesStarted(true);
@@ -207,18 +237,18 @@ export const BadgesPage: React.FC = () => {
       <div className="mt-16 border-t border-border pt-12">
         <div className="text-center mb-8 relative">
           <h2 className="text-3xl font-bold tracking-tight text-text-primary mb-2 flex justify-center items-center gap-3">
-            {!hasCompletedMilestone3 && <Lock className="text-text-secondary" />}
+            {!highestMilestone && <Lock className="text-text-secondary" />}
             Milestone Certificate
           </h2>
           <p className="text-text-secondary">
-            {hasCompletedMilestone3 
-              ? "You have successfully completed Milestone 3. Download your personalized certificate below."
-              : "Complete Milestone 3 (50kg) to unlock your personalized E-Certificate."}
+            {highestMilestone 
+              ? `You have successfully completed ${highestMilestone.name}. Download your personalized certificate below.`
+              : `Complete Milestone 1 (15kg) to unlock your personalized E-Certificate.`}
           </p>
           
-          {hasCompletedMilestone3 && (
+          {highestMilestone && (
             <button 
-              onClick={() => handleShare('My CarbonTrack Certificate', 'I just earned my Eco Champion Certificate on CarbonTrack for reducing 50kg of CO2!')}
+              onClick={() => handleShare('My CarbonTrack Certificate', `I just earned my Eco Champion Certificate on CarbonTrack for reducing ${highestMilestone.target}kg of CO2!`)}
               className="absolute right-0 top-0 hidden md:flex items-center gap-2 btn-secondary px-4 py-2"
             >
               <Share2 size={16} /> Share Certificate
@@ -226,13 +256,13 @@ export const BadgesPage: React.FC = () => {
           )}
         </div>
         
-        {hasCompletedMilestone3 ? (
+        {highestMilestone ? (
           <div className="relative">
-            <ECertificate userName={user?.name || 'Eco Champion'} targetAchieved="Milestone 3 (50kg)" />
+            <ECertificate userName={user?.name || 'Eco Champion'} targetAchieved={`${highestMilestone.name} (${highestMilestone.target}kg)`} />
             {/* Mobile Share Button */}
             <div className="md:hidden flex justify-center mt-6">
               <button 
-                onClick={() => handleShare('My CarbonTrack Certificate', 'I just earned my Eco Champion Certificate on CarbonTrack for reducing 50kg of CO2!')}
+                onClick={() => handleShare('My CarbonTrack Certificate', `I just earned my Eco Champion Certificate on CarbonTrack for reducing ${highestMilestone.target}kg of CO2!`)}
                 className="flex items-center gap-2 btn-secondary px-6 py-2"
               >
                 <Share2 size={16} /> Share Certificate

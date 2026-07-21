@@ -18,13 +18,13 @@ import CommunityPage from './pages/Community/CommunityPage';
 import ProfilePage from './pages/Profile/ProfilePage';
 import SettingsPage from './pages/Settings/SettingsPage';
 import { OrganisationPage } from './pages/Organisation/OrganisationPage';
-import Aurora from './components/ui/Aurora';
+import NatureBackground from './components/ui/NatureBackground';
 import ErrorBoundary from './components/ErrorBoundary';
 
 function App() {
   return (
     <AuthProvider>
-      <Aurora />
+      <NatureBackground />
       <BrowserRouter>
         <Routes>
           {/* Public Routes */}

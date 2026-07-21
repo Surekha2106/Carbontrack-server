@@ -56,4 +56,13 @@ public class Goal {
 
     @Column(name = "created_at", insertable = false, updatable = false)
     private LocalDateTime createdAt;
+
+    @Transient
+    private Double progressPercentage;
+
+    @Transient
+    private String trackingStatus;
+
+    @Transient
+    private String alertMessage;
 }
