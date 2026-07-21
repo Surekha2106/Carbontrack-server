@@ -23,7 +23,7 @@ const OAuth2RedirectHandler: React.FC = () => {
     } else {
       navigate('/login?error=oauth_missing_params');
     }
-  }, [searchParams, navigate, login]);
+  }, [searchParams, navigate]);
 
   return (
     <div className="flex h-screen items-center justify-center bg-background text-white">

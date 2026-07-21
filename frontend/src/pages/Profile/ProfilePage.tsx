@@ -1,27 +1,48 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { User, Mail, Shield, Award, Settings, LogOut, Edit3 } from 'lucide-react';
+import { User, Mail, Shield, Award, Settings, LogOut, Edit3, Activity } from 'lucide-react';
 import { userService } from '../../services/userService';
 import { useAuth } from '../../context/AuthContext';
+import { apiClient } from '../../services/apiClient';
 
 export const ProfilePage: React.FC = () => {
   const { user: authUser, logout } = useAuth();
   const [profile, setProfile] = useState<any>(null);
+  const [totalEmissions, setTotalEmissions] = useState(0);
 
   useEffect(() => {
-    const fetchProfile = async () => {
+    const fetchProfileData = async () => {
       try {
-        // Fallback to authUser if API fails or isn't ready
         const res = await userService.getProfile().catch(() => authUser);
         setProfile(res || authUser);
+        
+        const analyticsRes = await apiClient.get('/analytics/summary').catch(() => null);
+        if (analyticsRes && analyticsRes.data) {
+          setTotalEmissions(analyticsRes.data.totalEmissions || 0);
+        }
       } catch (error) {
-        console.error('Failed to fetch profile', error);
+        console.error('Failed to fetch profile data', error);
       }
     };
-    fetchProfile();
+    fetchProfileData();
   }, [authUser]);
 
   if (!profile) return null;
+  
+  const calculateLevel = (emissions: number) => {
+    if (emissions > 500) return 1;
+    if (emissions > 200) return 5;
+    if (emissions > 50) return 10;
+    return 15;
+  };
+  
+  const calculateBadges = (emissions: number) => {
+    let badges = 0;
+    if (emissions >= 15) badges++;
+    if (emissions >= 30) badges++;
+    if (emissions >= 50) badges++;
+    return badges;
+  };
 
   return (
     <div className="space-y-6 pb-12 relative max-w-4xl mx-auto">
@@ -39,7 +60,7 @@ export const ProfilePage: React.FC = () => {
           
           <div className="flex-1">
             <h1 className="text-3xl font-bold tracking-tight">{profile.name || 'CarbonTrack User'}</h1>
-            <p className="text-accent font-medium mt-1">Level 12 Eco-Warrior</p>
+            <p className="text-accent font-medium mt-1">Level {calculateLevel(totalEmissions)} Eco-Warrior</p>
           </div>
           
           <div className="flex gap-3">
@@ -70,7 +91,7 @@ export const ProfilePage: React.FC = () => {
               </div>
               <div className="flex items-center gap-3 text-text-secondary">
                 <Shield size={16} className="text-text-primary" />
-                <span>Joined July 2026</span>
+                <span>{profile.accountType === 'INDIVIDUAL' ? 'Individual User' : profile.role === 'ORG_ADMIN' ? 'Org Admin' : profile.role === 'ADMIN' ? 'System Admin' : (profile.role === 'INDIVIDUAL' || profile.role === 'USER' ? 'User' : (profile.role ? profile.role.replace(/_/g, ' ').replace(/\b\w/g, (c: string) => c.toUpperCase()) : 'Active Member'))}</span>
               </div>
             </div>
           </div>
@@ -91,16 +112,16 @@ export const ProfilePage: React.FC = () => {
                 </div>
                 <div>
                   <p className="text-text-secondary text-sm">Total Badges</p>
-                  <p className="text-2xl font-bold">14</p>
+                  <p className="text-2xl font-bold">{calculateBadges(totalEmissions)}</p>
                 </div>
               </div>
               <div className="p-4 rounded-xl bg-surface/30 border border-border flex items-center gap-4">
                 <div className="p-3 bg-blue-500/20 text-blue-400 rounded-lg">
-                  <Shield size={24} />
+                  <Activity size={24} />
                 </div>
                 <div>
-                  <p className="text-text-secondary text-sm">CO₂ Saved</p>
-                  <p className="text-2xl font-bold">9,500 kg</p>
+                  <p className="text-text-secondary text-sm">CO₂ Logged</p>
+                  <p className="text-2xl font-bold">{totalEmissions.toFixed(1)} kg</p>
                 </div>
               </div>
             </div>

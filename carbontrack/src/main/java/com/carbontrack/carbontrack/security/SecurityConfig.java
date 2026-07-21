@@ -49,7 +49,13 @@ public class SecurityConfig {
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             )
             .authenticationProvider(authenticationProvider())
-            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+            .oauth2Login(oauth2 -> oauth2
+                .successHandler(oAuth2AuthenticationSuccessHandler)
+                .failureHandler((request, response, exception) -> {
+                    response.sendRedirect("http://localhost:5173/login?error=" + java.net.URLEncoder.encode("OAuth2 Authentication Failed: " + exception.getMessage(), "UTF-8"));
+                })
+            );
 
         return http.build();
     }

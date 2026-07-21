@@ -1,0 +1,3 @@
+ALTER TABLE users ADD COLUMN last_active_date DATE;
+ALTER TABLE users ADD COLUMN current_streak INTEGER DEFAULT 0;
+ALTER TABLE users ADD COLUMN highest_streak INTEGER DEFAULT 0;

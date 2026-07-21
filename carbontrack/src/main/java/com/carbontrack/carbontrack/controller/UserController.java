@@ -20,4 +20,9 @@ public class UserController {
     public ResponseEntity<UserResponse> getCurrentUser(Authentication authentication) {
         return ResponseEntity.ok(userService.getUserProfile(authentication.getName()));
     }
+
+    @GetMapping("/leaderboard")
+    public ResponseEntity<java.util.List<com.carbontrack.carbontrack.dto.LeaderboardDto>> getLeaderboard(Authentication authentication) {
+        return ResponseEntity.ok(userService.getLeaderboard(authentication.getName()));
+    }
 }

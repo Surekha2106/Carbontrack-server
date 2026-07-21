@@ -1,62 +1,117 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Mulish:wght@400;500;600;700&display=swap');
 @import "tailwindcss";
 
-@theme {
-  --color-background: #0b0b0b;
-  --color-surface: #161616;
-  --color-accent: #22c55e;
-  --color-accent-hover: #16a34a;
-  --color-border: rgba(255, 255, 255, 0.08);
-  --color-glass: rgba(255, 255, 255, 0.06);
-  --color-text-primary: #ffffff;
-  --color-text-secondary: #a1a1aa;
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ─── Brand Design Tokens ──────────────────────────────────── */
+:root {
+  --moss-950: #0B1F15;
+  --moss-900: #0F2419;
+  --moss-800: #173C29;
+  --moss-700: #1E4D34;
+  --moss-600: #2D6A4F;
+  --leaf-400: #95D5B2;
+  --leaf-200: #D5EFDF;
   
-  --font-sans: 'Inter', 'Poppins', system-ui, sans-serif;
+  --paper:    #F7F5EF;
+  --ink:      #141A17;
+  --color-surface-base: #FFFFFF;
+  --color-border-base: rgba(20, 26, 23, 0.10);
+  --color-glass-base: rgba(255, 255, 255, 0.8);
+  --color-text-secondary-base: #5A6660;
+  --ease:     cubic-bezier(0.16, 1, 0.3, 1);
+  --color-bg-gradient-end: #ffffff;
+}
+
+.dark {
+  --moss-950: #050807;
+  --moss-900: #090e0c;
+  --paper:    #0f1712;
+  --ink:      #e4ebe7;
+  --color-surface-base: #141f18;
+  --color-border-base: rgba(149, 213, 178, 0.15);
+  --color-glass-base: rgba(20, 31, 24, 0.75);
+  --color-text-secondary-base: #a2b0a9;
+  --color-bg-gradient-end: #0b120d;
+}
+
+@theme {
+  --color-background: var(--paper);
+  --color-surface: var(--color-surface-base);
+  --color-accent: var(--moss-600);
+  --color-accent-hover: var(--moss-700);
+  --color-border: var(--color-border-base);
+  --color-glass: var(--color-glass-base);
+  --color-text-primary: var(--ink);
+  --color-text-secondary: var(--color-text-secondary-base);
+
+  --font-sans: 'Mulish', system-ui, sans-serif;
+  --font-serif: 'Poppins', system-ui, sans-serif;
 }
 
 @layer base {
   body {
-    @apply bg-background text-text-primary font-sans antialiased;
-    background-image: 
-      radial-gradient(circle at top right, rgba(34, 197, 94, 0.08), transparent 400px),
-      radial-gradient(circle at bottom left, rgba(34, 197, 94, 0.05), transparent 400px);
-    background-attachment: fixed;
+    @apply text-text-primary font-sans antialiased;
+    background-color: var(--paper);
     min-height: 100vh;
   }
 
-  /* Custom scrollbar */
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Poppins', system-ui, sans-serif;
+  }
+
+  /* Custom minimal scrollbar */
   ::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
+    width: 6px;
+    height: 6px;
   }
   ::-webkit-scrollbar-track {
     background: transparent;
   }
   ::-webkit-scrollbar-thumb {
-    @apply bg-border rounded-full;
+    background: rgba(45, 106, 79, 0.25);
+    border-radius: 9999px;
   }
   ::-webkit-scrollbar-thumb:hover {
-    @apply bg-text-secondary;
+    background: rgba(45, 106, 79, 0.45);
   }
 }
 
 @layer utilities {
   .glass-panel {
-    @apply bg-glass backdrop-blur-xl border border-border shadow-[0_8px_32px_0_rgba(0,0,0,0.37)] rounded-2xl;
+    @apply bg-surface border border-border rounded-3xl shadow-sm backdrop-blur-md;
   }
-  
+
   .glass-input {
-    @apply w-full bg-black/40 border border-border rounded-xl text-text-primary pr-4 py-3 outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-all placeholder:text-text-secondary;
+    @apply w-full bg-surface border border-border text-text-primary py-3 outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-all placeholder:text-text-secondary rounded-xl;
   }
-  
+
+  /* Primary button — green gradient matching landing page CTA */
   .btn-primary {
-    @apply inline-flex items-center justify-center bg-accent hover:bg-accent-hover text-white font-medium py-3 px-6 rounded-xl transition-all shadow-[0_0_15px_rgba(34,197,94,0.3)] hover:shadow-[0_0_25px_rgba(34,197,94,0.5)];
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #4CAE7C, var(--moss-600));
+    color: #fff;
+    font-family: 'Mulish', sans-serif;
+    font-weight: 600;
+    padding: 12px 28px;
+    border-radius: 10px;
+    box-shadow: 0 8px 24px -6px rgba(45, 106, 79, 0.50);
+    transition: transform 0.25s var(--ease), box-shadow 0.25s var(--ease);
+    border: none;
+    cursor: pointer;
   }
-  
+  .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 30px -6px rgba(45, 106, 79, 0.65);
+  }
+
   .btn-secondary {
-    @apply inline-flex items-center justify-center bg-glass hover:bg-white/10 text-text-primary font-medium py-3 px-6 rounded-xl border border-border transition-all;
+    @apply inline-flex items-center justify-center bg-surface hover:bg-white/10 text-text-primary font-medium py-3 px-8 border border-border transition-colors duration-300 rounded-xl shadow-sm;
   }
 
   .text-gradient {
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-white to-text-secondary;
+    @apply text-text-primary;
   }
 }

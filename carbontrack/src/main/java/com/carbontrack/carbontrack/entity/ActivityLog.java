@@ -42,6 +42,25 @@ public class ActivityLog {
     @Column(precision = 10, scale = 2)
     private BigDecimal emission;
 
+    @Column(length = 20)
+    @Builder.Default
+    private String scope = "SCOPE_3";
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "org_id")
+    @JsonIgnore
+    private Organisation organisation;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "branch_id")
+    @JsonIgnore
+    private Branch branch;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "department_id")
+    @JsonIgnore
+    private Department department;
+
     @Column(name = "log_date", nullable = false)
     private LocalDate logDate;
 

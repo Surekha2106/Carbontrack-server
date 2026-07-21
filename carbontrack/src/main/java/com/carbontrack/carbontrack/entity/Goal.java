@@ -48,6 +48,12 @@ public class Goal {
     @Column(length = 30)
     private String status;
 
+    @Column(name = "target_reduction_pct")
+    private BigDecimal targetReductionPct;
+
+    @Column(name = "period_days")
+    private Integer periodDays;
+
     @Column(name = "created_at", insertable = false, updatable = false)
     private LocalDateTime createdAt;
 }

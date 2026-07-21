@@ -44,7 +44,7 @@ export const LogActivityModal: React.FC<LogActivityModalProps> = ({ isOpen, onCl
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            className="absolute inset-0 bg-text-primary/20 backdrop-blur-sm"
           />
 
           {/* Modal Content */}
@@ -56,13 +56,13 @@ export const LogActivityModal: React.FC<LogActivityModalProps> = ({ isOpen, onCl
           >
             <button
               onClick={onClose}
-              className="absolute top-4 right-4 p-2 rounded-lg bg-surface hover:bg-white/10 text-text-secondary hover:text-white transition-colors border border-border"
+              className="absolute top-4 right-4 p-2 rounded-lg bg-white hover:bg-gray-100 text-text-secondary hover:text-text-primary transition-colors border border-border"
             >
               <X size={18} />
             </button>
 
             <div className="mb-6">
-              <h2 className="text-2xl font-bold text-white mb-1">Log Activity</h2>
+              <h2 className="text-2xl font-bold text-text-primary mb-1">Log Activity</h2>
               <p className="text-sm text-text-secondary">Track a new action to reduce your carbon footprint.</p>
             </div>
 
@@ -75,7 +75,7 @@ export const LogActivityModal: React.FC<LogActivityModalProps> = ({ isOpen, onCl
                   type="date"
                   defaultValue={new Date().toISOString().split('T')[0]}
                   className="glass-input"
-                  style={{ colorScheme: 'dark' }}
+                  style={{ colorScheme: 'light' }}
                 />
               </div>
 
@@ -103,7 +103,7 @@ export const LogActivityModal: React.FC<LogActivityModalProps> = ({ isOpen, onCl
                 <div className="space-y-1">
                   <label className="text-xs text-text-secondary pl-1">🥗 Food & Diet (meals)</label>
                   <div className="flex gap-2">
-                    <select {...register('foodType')} className="glass-input w-1/2 text-xs" style={{ colorScheme: 'dark' }}>
+                    <select {...register('foodType')} className="glass-input w-1/2 text-xs" style={{ colorScheme: 'light' }}>
                       <option value="food">General</option>
                       <option value="chicken_biryani">Chicken Biryani</option>
                       <option value="mutton_biryani">Mutton Biryani</option>

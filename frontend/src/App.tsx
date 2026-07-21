@@ -6,6 +6,7 @@ import { DashboardLayout } from './layouts/DashboardLayout';
 import Landing from './pages/Landing/Landing';
 import Login from './pages/Auth/Login';
 import Register from './pages/Auth/Register';
+import AcceptInvite from './pages/Auth/AcceptInvite';
 import OAuth2RedirectHandler from './pages/Auth/OAuth2RedirectHandler';
 import Dashboard from './pages/Dashboard/Dashboard';
 import { ActivitiesPage } from './pages/Activities/ActivitiesPage';
@@ -16,7 +17,9 @@ import LeaderboardPage from './pages/Leaderboard/LeaderboardPage';
 import CommunityPage from './pages/Community/CommunityPage';
 import ProfilePage from './pages/Profile/ProfilePage';
 import SettingsPage from './pages/Settings/SettingsPage';
+import { OrganisationPage } from './pages/Organisation/OrganisationPage';
 import Aurora from './components/ui/Aurora';
+import ErrorBoundary from './components/ErrorBoundary';
 
 function App() {
   return (
@@ -32,6 +35,7 @@ function App() {
           <Route element={<PublicRoute />}>
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/accept-invite" element={<AcceptInvite />} />
           </Route>
 
           {/* Protected Routes */}
@@ -46,6 +50,7 @@ function App() {
               <Route path="/community" element={<CommunityPage />} />
               <Route path="/profile" element={<ProfilePage />} />
               <Route path="/settings" element={<SettingsPage />} />
+              <Route path="/organisation" element={<ErrorBoundary><OrganisationPage /></ErrorBoundary>} />
             </Route>
           </Route>
 

@@ -11,5 +11,10 @@ export const userService = {
     // const response = await apiClient.put('/users/me', data);
     // return response.data;
     return new Promise(resolve => setTimeout(() => resolve({ success: true, ...data }), 800));
+  },
+  
+  getLeaderboard: async () => {
+    const response = await apiClient.get('/users/leaderboard');
+    return response.data;
   }
 };

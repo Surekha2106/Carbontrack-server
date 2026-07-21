@@ -1,10 +1,17 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 
-interface User {
+export interface User {
   id: string;
   name: string;
   email: string;
   role?: string;
+  accountType?: string;
+  orgId?: number;
+  organisationName?: string;
+  department?: string;
+  logoUrl?: string;
+  primaryColor?: string;
+  allowedDomain?: string;
 }
 
 interface AuthContextType {
@@ -12,6 +19,7 @@ interface AuthContextType {
   token: string | null;
   login: (token: string, user: User) => void;
   logout: () => void;
+  updateUser: (updatedUser: Partial<User>) => void;
   isAuthenticated: boolean;
   isLoading: boolean;
 }
@@ -23,8 +31,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [token, setToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
+  // Dynamic branding theme injection
   useEffect(() => {
-    // Check for stored auth info on mount
+    if (user?.primaryColor) {
+      document.documentElement.style.setProperty('--org-primary-color', user.primaryColor);
+    } else {
+      document.documentElement.style.removeProperty('--org-primary-color');
+    }
+  }, [user?.primaryColor]);
+
+  useEffect(() => {
     const storedToken = localStorage.getItem('token');
     const storedUser = localStorage.getItem('user');
 
@@ -40,19 +56,28 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setIsLoading(false);
   }, []);
 
-  const login = (newToken: string, newUser: User) => {
+  const login = useCallback((newToken: string, newUser: User) => {
     setToken(newToken);
     setUser(newUser);
     localStorage.setItem('token', newToken);
     localStorage.setItem('user', JSON.stringify(newUser));
-  };
+  }, []);
 
-  const logout = () => {
+  const logout = useCallback(() => {
     setToken(null);
     setUser(null);
     localStorage.removeItem('token');
     localStorage.removeItem('user');
-  };
+  }, []);
+
+  const updateUser = useCallback((updatedUser: Partial<User>) => {
+    setUser(prev => {
+      if (!prev) return null;
+      const next = { ...prev, ...updatedUser };
+      localStorage.setItem('user', JSON.stringify(next));
+      return next;
+    });
+  }, []);
 
   return (
     <AuthContext.Provider
@@ -61,6 +86,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         token,
         login,
         logout,
+        updateUser,
         isAuthenticated: !!token,
         isLoading,
       }}

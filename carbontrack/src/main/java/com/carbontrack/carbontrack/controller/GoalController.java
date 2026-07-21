@@ -28,4 +28,12 @@ public class GoalController {
     ) {
         return ResponseEntity.ok(goalService.createGoal(authentication.getName(), goalRequest));
     }
+
+    @GetMapping("/{id}/progress")
+    public ResponseEntity<java.util.Map<String, Object>> getGoalProgress(
+            @PathVariable Long id,
+            Authentication authentication
+    ) {
+        return ResponseEntity.ok(goalService.getGoalProgress(id, authentication.getName()));
+    }
 }

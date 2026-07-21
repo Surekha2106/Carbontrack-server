@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import jakarta.validation.Valid;
 
 import java.util.List;
 
@@ -24,7 +25,7 @@ public class ActivityController {
 
     @PostMapping
     public ResponseEntity<ActivityLog> logActivity(
-            @RequestBody ActivityRequest request,
+            @Valid @RequestBody ActivityRequest request,
             Authentication authentication
     ) {
         return ResponseEntity.ok(activityService.addActivity(authentication.getName(), request));

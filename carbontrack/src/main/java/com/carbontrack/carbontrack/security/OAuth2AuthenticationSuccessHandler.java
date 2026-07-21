@@ -26,6 +26,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final UserDetailsServiceImpl userDetailsService;
+    private final com.carbontrack.carbontrack.repository.OrganisationInviteRepository inviteRepository;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
@@ -55,19 +56,25 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
 
         // Check if user exists, if not, create a new user
         User user = userRepository.findByEmail(email).orElseGet(() -> {
-            User newUser = User.builder()
+            User.UserBuilder userBuilder = User.builder()
                     .email(finalEmail)
                     .name(finalName)
-                    .password(passwordEncoder.encode(UUID.randomUUID().toString())) // Random password for OAuth users
-                    .build();
-            return userRepository.save(newUser);
+                    .password(passwordEncoder.encode(UUID.randomUUID().toString())); // Random password for OAuth users
+
+            // Check if there is an active organisation invitation
+            inviteRepository.findByEmail(finalEmail).ifPresent(invite -> {
+                userBuilder.organisation(invite.getOrganisation());
+                userBuilder.role(com.carbontrack.carbontrack.entity.Role.USER);
+            });
+
+            return userRepository.save(userBuilder.build());
         });
 
         // Generate JWT Token
         String token = jwtService.generateToken(userDetailsService.loadUserByUsername(user.getEmail()));
         
         // Create a JSON string with user data for the frontend to store
-        String userJson = String.format("{\"id\":\"%d\",\"email\":\"%s\",\"name\":\"%s\"}", user.getId(), user.getEmail(), user.getName());
+        String userJson = String.format("{\"id\":\"%d\",\"email\":\"%s\",\"name\":\"%s\",\"role\":\"%s\"}", user.getId(), user.getEmail(), user.getName(), user.getRole().name());
         String encodedUser = URLEncoder.encode(userJson, StandardCharsets.UTF_8);
 
         // Redirect to frontend

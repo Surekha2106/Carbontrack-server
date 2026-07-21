@@ -1,15 +1,20 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from 'recharts';
 import { PieChart, Activity, Download } from 'lucide-react';
 import { activityService } from '../../services/activityService';
 
 export const AnalyticsPage: React.FC = () => {
+  const [activities, setActivities] = useState<any[]>([]);
+  const [filterType, setFilterType] = useState('All Time');
+  const [customStartDate, setCustomStartDate] = useState('');
+  const [customEndDate, setCustomEndDate] = useState('');
+
   useEffect(() => {
     const fetchActivities = async () => {
       try {
-        await activityService.getActivities();
-        // setActivities(res); // Aggregation logic here
+        const res = await activityService.getActivities();
+        setActivities(res);
       } catch (error) {
         console.error('Failed to fetch activities', error);
       }
@@ -17,22 +22,91 @@ export const AnalyticsPage: React.FC = () => {
     fetchActivities();
   }, []);
 
-  // Prepare mocked or aggregated data for charts
-  const categoryData = [
-    { name: 'Transport', emissions: 120, fill: '#3b82f6' },
-    { name: 'Food', emissions: 85, fill: '#22c55e' },
-    { name: 'Energy', emissions: 150, fill: '#eab308' },
-    { name: 'Shopping', emissions: 45, fill: '#a855f7' },
-  ];
+  // Apply date filters to activities
+  const filteredActivities = React.useMemo(() => {
+    if (!activities) return [];
+    const now = new Date();
+    return activities.filter(act => {
+      const actDate = new Date(act.logDate);
+      if (filterType === 'All Time') return true;
+      if (filterType === 'Last Week') {
+        const lastWeek = new Date(now);
+        lastWeek.setDate(now.getDate() - 7);
+        return actDate >= lastWeek;
+      }
+      if (filterType === 'Last Month') {
+        const lastMonth = new Date(now);
+        lastMonth.setMonth(now.getMonth() - 1);
+        return actDate >= lastMonth;
+      }
+      if (filterType === 'Last Year') {
+        const lastYear = new Date(now);
+        lastYear.setFullYear(now.getFullYear() - 1);
+        return actDate >= lastYear;
+      }
+      if (filterType === 'Custom') {
+        if (!customStartDate || !customEndDate) return true;
+        const start = new Date(customStartDate);
+        const end = new Date(customEndDate);
+        end.setHours(23, 59, 59, 999);
+        return actDate >= start && actDate <= end;
+      }
+      return true;
+    });
+  }, [activities, filterType, customStartDate, customEndDate]);
 
-  const timelineData = [
-    { month: 'Jan', emissions: 400 },
-    { month: 'Feb', emissions: 300 },
-    { month: 'Mar', emissions: 350 },
-    { month: 'Apr', emissions: 200 },
-    { month: 'May', emissions: 280 },
-    { month: 'Jun', emissions: 180 },
-  ];
+  // Generate live timeline data grouped by Month-Year
+  const timelineData = React.useMemo(() => {
+    if (!filteredActivities || filteredActivities.length === 0) return [];
+    
+    const grouped = filteredActivities.reduce((acc, act) => {
+      const date = new Date(act.logDate);
+      const monthYear = date.toLocaleString('default', { month: 'short' });
+      if (!acc[monthYear]) acc[monthYear] = 0;
+      acc[monthYear] += Number(act.emission || 0);
+      return acc;
+    }, {} as Record<string, number>);
+
+    // Activities are typically returned newest first, so we might want to reverse them
+    // but a better way is to sort by actual date
+    const sortedMonths = Object.keys(grouped).sort((a, b) => {
+      return new Date(a + ' 1, 2026').getTime() - new Date(b + ' 1, 2026').getTime(); 
+    });
+
+    return sortedMonths.map(month => ({
+      month,
+      emissions: Number(grouped[month].toFixed(2))
+    }));
+  }, [filteredActivities]);
+
+  // Generate live category data
+  const categoryData = React.useMemo(() => {
+    if (!filteredActivities || filteredActivities.length === 0) return [];
+
+    const grouped = filteredActivities.reduce((acc, act) => {
+      const cat = act.category;
+      if (!acc[cat]) acc[cat] = 0;
+      acc[cat] += Number(act.emission || 0);
+      return acc;
+    }, {} as Record<string, number>);
+
+    const colorMap: Record<string, string> = {
+      'Transport': '#3b82f6',
+      'Food': '#22c55e',
+      'Electricity': '#eab308',
+      'Shopping': '#a855f7'
+    };
+
+    return Object.entries(grouped).map(([name, emissions]) => ({
+      name,
+      emissions: Number((emissions as number).toFixed(2)),
+      fill: colorMap[name] || '#8b5cf6'
+    })).sort((a, b) => b.emissions - a.emissions);
+  }, [filteredActivities]);
+
+  const topCategory = categoryData.length > 0 ? categoryData[0] : null;
+  const totalEmissions = categoryData.reduce((sum, item) => sum + item.emissions, 0);
+  const averageEmissions = timelineData.length > 0 ? (totalEmissions / timelineData.length).toFixed(1) : '0.0';
 
   return (
     <div className="space-y-6 pb-12 relative">
@@ -48,6 +122,39 @@ export const AnalyticsPage: React.FC = () => {
         </button>
       </div>
 
+      <div className="flex flex-col md:flex-row gap-4 items-center bg-surface/30 p-4 rounded-2xl border border-border">
+        <span className="text-sm font-bold text-text-secondary">Filter by:</span>
+        <select 
+          value={filterType}
+          onChange={(e) => setFilterType(e.target.value)}
+          className="px-3 py-2 rounded-lg border border-border bg-surface text-sm focus:outline-none focus:border-accent"
+        >
+          <option value="All Time">All Time</option>
+          <option value="Last Week">Last Week</option>
+          <option value="Last Month">Last Month</option>
+          <option value="Last Year">Last Year</option>
+          <option value="Custom">Custom Range</option>
+        </select>
+
+        {filterType === 'Custom' && (
+          <div className="flex items-center gap-2">
+            <input 
+              type="date" 
+              value={customStartDate}
+              onChange={(e) => setCustomStartDate(e.target.value)}
+              className="px-3 py-2 rounded-lg border border-border bg-surface text-sm focus:outline-none focus:border-accent"
+            />
+            <span className="text-text-secondary">to</span>
+            <input 
+              type="date" 
+              value={customEndDate}
+              onChange={(e) => setCustomEndDate(e.target.value)}
+              className="px-3 py-2 rounded-lg border border-border bg-surface text-sm focus:outline-none focus:border-accent"
+            />
+          </div>
+        )}
+      </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
         <motion.div 
           initial={{ opacity: 0, x: -20 }}
@@ -55,15 +162,15 @@ export const AnalyticsPage: React.FC = () => {
           transition={{ duration: 0.5 }}
           className="glass-card flex flex-col"
         >
-          <h3 className="text-lg font-bold mb-6 flex items-center gap-2">
+          <h3 className="text-lg font-bold mb-6 text-[#141A17] dark:text-white flex items-center gap-2">
             <Activity className="w-5 h-5 text-accent" /> Emissions Over Time
           </h3>
           <div className="h-72 w-full">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={timelineData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
-                <XAxis dataKey="month" stroke="rgba(255,255,255,0.5)" />
-                <YAxis stroke="rgba(255,255,255,0.5)" />
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border-base)" />
+                <XAxis dataKey="month" stroke="var(--color-text-secondary)" fontSize={12} />
+                <YAxis stroke="var(--color-text-secondary)" fontSize={12} />
                 <Tooltip 
                   contentStyle={{ backgroundColor: 'rgba(0,0,0,0.8)', borderColor: 'rgba(34,197,94,0.3)', borderRadius: '12px' }}
                   itemStyle={{ color: '#fff' }}
@@ -80,13 +187,13 @@ export const AnalyticsPage: React.FC = () => {
           transition={{ duration: 0.5, delay: 0.2 }}
           className="glass-card flex flex-col"
         >
-          <h3 className="text-lg font-bold mb-6">Emissions by Category</h3>
+          <h3 className="text-lg font-bold mb-6 text-[#141A17] dark:text-white">Emissions by Category</h3>
           <div className="h-72 w-full">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={categoryData} layout="vertical" margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
-                <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="rgba(255,255,255,0.1)" />
-                <XAxis type="number" stroke="rgba(255,255,255,0.5)" />
-                <YAxis dataKey="name" type="category" stroke="rgba(255,255,255,0.5)" />
+                <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="var(--color-border-base)" />
+                <XAxis type="number" stroke="var(--color-text-secondary)" fontSize={12} />
+                <YAxis dataKey="name" type="category" stroke="var(--color-text-secondary)" fontSize={12} />
                 <Tooltip 
                   cursor={{ fill: 'rgba(255,255,255,0.05)' }}
                   contentStyle={{ backgroundColor: 'rgba(0,0,0,0.8)', borderColor: 'rgba(255,255,255,0.1)', borderRadius: '12px' }}
@@ -108,15 +215,17 @@ export const AnalyticsPage: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="p-4 rounded-xl bg-surface/30 border border-border">
             <p className="text-text-secondary text-sm">Top Contributor</p>
-            <p className="text-xl font-bold text-yellow-500 mt-1">Energy (150 kg)</p>
+            <p className="text-xl font-bold text-yellow-500 mt-1">
+              {topCategory ? `${topCategory.name} (${topCategory.emissions} kg)` : 'N/A'}
+            </p>
           </div>
           <div className="p-4 rounded-xl bg-surface/30 border border-border">
             <p className="text-text-secondary text-sm">Monthly Average</p>
-            <p className="text-xl font-bold text-accent mt-1">285 kg CO₂</p>
+            <p className="text-xl font-bold text-accent mt-1">{averageEmissions} kg CO₂</p>
           </div>
           <div className="p-4 rounded-xl bg-surface/30 border border-border">
-            <p className="text-text-secondary text-sm">Trend</p>
-            <p className="text-xl font-bold text-emerald-400 mt-1">-12% vs last month</p>
+            <p className="text-text-secondary text-sm">Total Activities</p>
+            <p className="text-xl font-bold text-emerald-400 mt-1">{filteredActivities.length} logs</p>
           </div>
         </div>
       </motion.div>
