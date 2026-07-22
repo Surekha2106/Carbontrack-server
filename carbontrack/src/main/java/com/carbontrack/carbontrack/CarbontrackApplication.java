@@ -13,6 +13,11 @@ import org.springframework.cache.concurrent.ConcurrentMapCacheManager;
 public class CarbontrackApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(CarbontrackApplication.class, args);
+		org.springframework.context.ApplicationContext context = SpringApplication.run(CarbontrackApplication.class, args);
+		String port = context.getEnvironment().getProperty("server.port", "8080");
+		System.out.println("\n\n========================================================");
+		System.out.println("🚀 Backend is successfully running!");
+		System.out.println("🔗 Click or copy this link: http://localhost:" + port);
+		System.out.println("========================================================\n\n");
 	}
 }

@@ -4,7 +4,7 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Mail, Lock, User, UserPlus, Eye, EyeOff, Building2, Globe, Hash, Users, Layers, Info, CheckCircle } from 'lucide-react';
+import { Mail, Lock, User, UserPlus, Eye, EyeOff, Building2, Globe, Hash, Users, Layers, Info } from 'lucide-react';
 import { AuthLayout } from '../../layouts/AuthLayout';
 import { useAuth } from '../../context/AuthContext';
 import { authService } from '../../services/authService';

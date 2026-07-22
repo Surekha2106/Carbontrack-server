@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
-import { Target, TrendingUp, CheckCircle, Clock, Loader2, Trash2, Edit3 } from 'lucide-react';
+import { Target, TrendingUp, CheckCircle, Clock, Loader2, Trash2 } from 'lucide-react';
 import { goalService } from '../../services/goalService';
 import { CreateGoalModal } from '../../components/forms/CreateGoalModal';
 import { useAuth } from '../../context/AuthContext';

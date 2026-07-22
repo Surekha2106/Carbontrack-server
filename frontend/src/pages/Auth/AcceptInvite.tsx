@@ -1,14 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { useSearchParams, useNavigate } from 'react-router';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useSearchParams } from 'react-router';
+import { motion } from 'framer-motion';
 import { User, Lock, Loader2, CheckCircle2 } from 'lucide-react';
 import { apiClient } from '../../services/apiClient';
 
 const AcceptInvite = () => {
   const [searchParams] = useSearchParams();
   const token = searchParams.get('token');
-  const navigate = useNavigate();
-  
   const [loadingInfo, setLoadingInfo] = useState(true);
   const [inviteInfo, setInviteInfo] = useState<{ email: string; organizationName: string } | null>(null);
   const [error, setError] = useState('');

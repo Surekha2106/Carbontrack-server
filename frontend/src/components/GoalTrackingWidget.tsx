@@ -39,7 +39,7 @@ interface GoalTrackingWidgetProps {
   isLoading: boolean;
 }
 
-export const GoalTrackingWidget: React.FC<GoalTrackingWidgetProps> = ({ goalId, goalName, data, isLoading }) => {
+export const GoalTrackingWidget: React.FC<GoalTrackingWidgetProps> = ({ goalName, data, isLoading }) => {
   if (isLoading) {
     return (
       <Card className="w-full">
@@ -70,12 +70,10 @@ export const GoalTrackingWidget: React.FC<GoalTrackingWidgetProps> = ({ goalId, 
     projectedTotal,
     requiredDaily,
     alert,
-    status,
     chartData,
   } = data;
 
   const isFallingBehind = alert.includes('Falling Behind');
-  const alertColor = isFallingBehind ? 'text-red-500' : 'text-emerald-500';
   const progressPercent = Math.min(100, Math.max(0, (currentEmissions / targetEmissions) * 100));
 
   return (
